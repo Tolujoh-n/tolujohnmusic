@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { HiOutlineMenuAlt3, HiOutlineX } from 'react-icons/hi';
+import logo from "../assets/main-logo.png";
 
 const navItems = [
   { label: 'About', to: '/about' },
@@ -19,8 +20,8 @@ const SiteHeader = () => {
     <header className="fixed inset-x-0 top-0 z-40 bg-gradient-to-b from-slate-950/90 via-slate-950/30 to-transparent backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 transition-all">
         <NavLink to="/" className="group flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 via-brand-400 to-accent-400 text-lg font-semibold text-white shadow-lg shadow-brand-500/30 transition-transform group-hover:scale-105">
-            TJ
+          <span className="flex h-12 w-12 items-center justify-center">
+            <img src={logo} alt="Logo" className="h-8 w-8" />
           </span>
           <div className="leading-tight">
             <p className="font-heading text-lg font-semibold uppercase tracking-widest text-white drop-shadow-lg">
