@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AuthAPI } from '../../lib/api';
-import { useAuthStore } from '../../store/authStore';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminProfilePage = () => {
-  const updateStore = useAuthStore((state) => state.login);
+  const { updateAdmin } = useAuth();
   const { data, isLoading } = useQuery({
     queryKey: ['admin-profile'],
     queryFn: AuthAPI.getProfile,
@@ -36,7 +36,7 @@ const AdminProfilePage = () => {
         newPassword: form.newPassword || undefined,
       }),
     onSuccess: (updated) => {
-      updateStore({ admin: updated, token: useAuthStore.getState().token! });
+      updateAdmin(updated);
       setForm((prev) => ({ ...prev, currentPassword: '', newPassword: '' }));
     },
   });

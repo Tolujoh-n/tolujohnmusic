@@ -2,13 +2,12 @@ import { FormEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { AuthAPI } from '../../lib/api';
-import { useAuthStore } from '../../store/authStore';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const login = useAuthStore((state) => state.login);
+  const { isAuthenticated, login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
 
   const mutation = useMutation({

@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
+import { useAuth } from '../context/AuthContext';
 import { HiLogout, HiTemplate } from 'react-icons/hi';
 import {
   HiOutlineChartSquareBar,
@@ -28,10 +28,7 @@ const adminNav = [
 
 const AdminLayout = () => {
   const navigate = useNavigate();
-  const { admin, logout } = useAuthStore((state) => ({
-    admin: state.admin,
-    logout: state.logout,
-  }));
+  const { admin, logout } = useAuth();
 
   const handleLogout = () => {
     logout();

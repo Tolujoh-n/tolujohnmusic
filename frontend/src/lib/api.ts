@@ -10,7 +10,7 @@ import type {
   ContactMessage,
 } from '../types/content';
 import type { AuthResponse, AdminProfile } from '../types/auth';
-import { getAuthToken } from '../store/authStore';
+import { getAuthToken } from '../context/AuthContext';
 
 const baseURL = process.env.REACT_APP_API_BASE_URL || '/api';
 
