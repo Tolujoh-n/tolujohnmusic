@@ -4,7 +4,7 @@ A full-stack, production-ready web experience for Nigerian gospel artist **Tolu 
 
 ## Tech Stack
 
-- **Frontend:** React (Vite, TypeScript), Tailwind CSS, React Router, TanStack Query, Zustand
+- **Frontend:** React (Create React App + TypeScript), Tailwind CSS, React Router, TanStack Query, Zustand
 - **Backend:** Node.js, Express, MongoDB (Mongoose), JWT auth, Express Validator
 - **Tooling:** Nodemon, Axios, React Icons, Morgan, Helmet, CORS
 
@@ -46,10 +46,10 @@ npm run dev             # start Express API on http://localhost:5000
 #### Frontend
 
 ```bash
-cd ../frontend
+cd ../frontend_cra
 npm install
 cp .env.example .env    # optional override for API base URL
-npm run dev             # launch React app on http://localhost:5173
+npm start               # launch React app on http://localhost:3000
 ```
 
 By default, the frontend proxies API requests to `http://localhost:5000/api`.
@@ -70,9 +70,9 @@ By default, the frontend proxies API requests to `http://localhost:5000/api`.
 
 ### Frontend `.env`
 
-| Variable             | Description                               |
-|----------------------|-------------------------------------------|
-| `VITE_API_BASE_URL`  | API base URL (defaults to `/api`)         |
+| Variable                 | Description                               |
+|--------------------------|-------------------------------------------|
+| `REACT_APP_API_BASE_URL` | API base URL (defaults to `/api`)         |
 
 ---
 
