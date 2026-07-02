@@ -120,6 +120,19 @@ const HeroSection = ({ hero }: HeroSectionProps) => {
                 {hero?.releaseDate && (
                   <p className="text-sm text-white/70">Released {releaseDate}</p>
                 )}
+
+                {hero?.freeDownloadEnabled && hero?.freeDownloadUrl && (
+                  <div className="mt-5">
+                    <a
+                      href={hero.freeDownloadUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.45em] text-white/90 transition hover:border-accent-300 hover:text-accent-100"
+                    >
+                      Free download
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>

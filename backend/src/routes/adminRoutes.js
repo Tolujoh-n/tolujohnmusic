@@ -42,6 +42,11 @@ router
       body('songTitle').notEmpty().withMessage('Song title is required'),
       body('tagline').notEmpty().withMessage('Tagline is required'),
       body('ctaUrl').isURL().withMessage('CTA URL must be valid'),
+      body('freeDownloadEnabled').optional().isBoolean(),
+      body('freeDownloadUrl')
+        .optional({ values: 'falsy' })
+        .isURL()
+        .withMessage('Free download URL must be valid'),
     ],
     upsertHeroHighlight
   );

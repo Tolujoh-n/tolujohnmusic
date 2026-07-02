@@ -51,20 +51,8 @@ const AboutPage = () => {
               </cite>
             </blockquote>
           )}
-        </div>
-        <div className="space-y-10">
-          <div className="overflow-hidden rounded-3xl border border-white/10 shadow-elevated">
-            <img
-              src={
-                data.featuredImage ||
-                'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&q=80'
-              }
-              alt="Tolu John"
-              className="h-full w-full object-cover"
-            />
-          </div>
-          {data.achievements && (
-            <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-3">
+          {data.achievements && data.achievements.length > 0 && (
+            <div className="mt-10 grid grid-cols-2 gap-4 text-center md:grid-cols-3">
               {data.achievements.map((achievement) => (
                 <div
                   key={achievement.label}
@@ -78,6 +66,18 @@ const AboutPage = () => {
               ))}
             </div>
           )}
+        </div>
+        <div className="min-h-[32rem] lg:min-h-0 lg:h-full lg:self-stretch">
+          <div className="h-full overflow-hidden rounded-3xl border border-white/10 shadow-elevated">
+            <img
+              src={
+                data.featuredImage ||
+                'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&q=80'
+              }
+              alt="Tolu John"
+              className="h-full w-full object-cover"
+            />
+          </div>
         </div>
       </div>
     </div>

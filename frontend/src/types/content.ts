@@ -13,6 +13,8 @@ export interface HeroHighlight {
   backgroundImage?: string;
   releaseDate?: string;
   audioPreviewUrl?: string;
+  freeDownloadEnabled?: boolean;
+  freeDownloadUrl?: string;
   platforms?: PlatformLink[];
   updatedAt: string;
 }

@@ -11,7 +11,7 @@ const AboutSection = ({ about }: AboutSectionProps) => {
 
   return (
     <section id="about" className="border-t border-white/5 bg-slate-950 py-24">
-      <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-center">
+      <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-stretch">
         <div>
           <p className="text-sm uppercase tracking-[0.5em] text-accent-300">About</p>
           <h2 className="mt-3 font-heading text-4xl font-semibold uppercase tracking-widest text-white">
@@ -31,7 +31,7 @@ const AboutSection = ({ about }: AboutSectionProps) => {
               </cite>
             </blockquote>
           )}
-          {about.achievements && (
+          {about.achievements && about.achievements.length > 0 && (
             <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3">
               {about.achievements.map((achievement) => (
                 <div
@@ -48,9 +48,9 @@ const AboutSection = ({ about }: AboutSectionProps) => {
           )}
         </div>
 
-        <div className="relative">
+        <div className="relative min-h-[28rem] lg:min-h-0 lg:h-full">
           <div className="absolute -inset-8 rounded-3xl bg-gradient-to-br from-brand-500/20 via-transparent to-transparent blur-3xl" />
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-elevated">
+          <div className="relative h-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-elevated">
             <img
               src={
                 about.featuredImage ||

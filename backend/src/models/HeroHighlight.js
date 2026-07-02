@@ -33,6 +33,14 @@ const heroHighlightSchema = new mongoose.Schema(
     audioPreviewUrl: {
       type: String,
     },
+    freeDownloadEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    freeDownloadUrl: {
+      type: String,
+      trim: true,
+    },
     platforms: [
       {
         name: { type: String, required: true },

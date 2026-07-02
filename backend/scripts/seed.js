@@ -44,6 +44,8 @@ const seedData = async () => {
     backgroundImage:
       'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1400&q=80',
     releaseDate: new Date('2024-08-30'),
+    freeDownloadEnabled: false,
+    freeDownloadUrl: '',
     platforms: [
       { name: 'Spotify', url: 'https://open.spotify.com/track/example' },
       { name: 'Apple Music', url: 'https://music.apple.com/album/example' },

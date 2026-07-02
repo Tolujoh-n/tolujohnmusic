@@ -11,6 +11,8 @@ interface HeroFormState {
   backgroundImage?: string;
   releaseDate?: string;
   audioPreviewUrl?: string;
+  freeDownloadEnabled: boolean;
+  freeDownloadUrl: string;
   platforms: { name: string; url: string }[];
 }
 
@@ -29,6 +31,8 @@ const AdminHeroPage = () => {
     backgroundImage: '',
     releaseDate: '',
     audioPreviewUrl: '',
+    freeDownloadEnabled: false,
+    freeDownloadUrl: '',
     platforms: [{ name: '', url: '' }],
   });
 
@@ -43,6 +47,8 @@ const AdminHeroPage = () => {
         backgroundImage: data.backgroundImage ?? '',
         releaseDate: data.releaseDate ? data.releaseDate.slice(0, 10) : '',
         audioPreviewUrl: data.audioPreviewUrl ?? '',
+        freeDownloadEnabled: Boolean(data.freeDownloadEnabled),
+        freeDownloadUrl: data.freeDownloadUrl ?? '',
         platforms: data.platforms?.length ? data.platforms : [{ name: '', url: '' }],
       });
     }
@@ -59,6 +65,11 @@ const AdminHeroPage = () => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = event.target;
+    setForm((prev) => ({ ...prev, [name]: checked }));
   };
 
   const handlePlatformChange = (index: number, field: 'name' | 'url', value: string) => {
@@ -207,6 +218,40 @@ const AdminHeroPage = () => {
               onChange={handleChange}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
             />
+          </div>
+          <div className="md:col-span-2 rounded-3xl border border-white/10 bg-white/5 p-6">
+            <div className="flex items-start justify-between gap-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Free download button</p>
+                <p className="mt-2 text-sm text-slate-300">
+                  Enable a “Free download” button in the hero that opens the link in a new tab.
+                </p>
+              </div>
+              <label className="inline-flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  name="freeDownloadEnabled"
+                  checked={form.freeDownloadEnabled}
+                  onChange={handleToggle}
+                  className="h-5 w-5 rounded border-white/20 bg-white/10 text-accent-400 focus:ring-accent-400/30"
+                />
+                <span className="text-sm font-semibold text-white">Enabled</span>
+              </label>
+            </div>
+
+            <div className="mt-5">
+              <label className="block text-xs uppercase tracking-[0.35em] text-slate-400">
+                Free download URL
+              </label>
+              <input
+                type="url"
+                name="freeDownloadUrl"
+                value={form.freeDownloadUrl}
+                onChange={handleChange}
+                placeholder="https://..."
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
+              />
+            </div>
           </div>
         </div>
 

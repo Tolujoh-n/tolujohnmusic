@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
 import { PublicAPI } from '../lib/api';
 
 const ContactPage = () => {
@@ -10,8 +11,12 @@ const ContactPage = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await mutateAsync(form);
-    setForm({ name: '', email: '', message: '' });
+    try {
+      await mutateAsync(form);
+      setForm({ name: '', email: '', message: '' });
+    } catch {
+      // Prevent React runtime error overlay for expected 4xx validations (e.g. 422).
+    }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -114,7 +119,21 @@ const ContactPage = () => {
 
           {isError && error instanceof Error && (
             <p className="mt-6 text-sm text-red-300">
-              {error.message || 'Something went wrong. Please try again later.'}
+              {(() => {
+                if (axios.isAxiosError(error)) {
+                  const payload = error.response?.data as
+                    | { message?: string; errors?: { msg?: string }[] }
+                    | undefined;
+                  const firstValidation = payload?.errors?.[0]?.msg;
+                  return (
+                    firstValidation ||
+                    payload?.message ||
+                    'Something went wrong. Please try again later.'
+                  );
+                }
+
+                return error.message || 'Something went wrong. Please try again later.';
+              })()}
             </p>
           )}
         </form>
