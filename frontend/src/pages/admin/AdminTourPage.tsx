@@ -9,9 +9,11 @@ interface TourFormState {
   city: string;
   country: string;
   date: string;
-  ticketUrl?: string;
-  vipUrl?: string;
-  isSoldOut?: boolean;
+  isTicketed: boolean;
+  ticketUrl: string;
+  enableVip: boolean;
+  vipUrl: string;
+  isSoldOut: boolean;
 }
 
 const emptyState: TourFormState = {
@@ -20,7 +22,9 @@ const emptyState: TourFormState = {
   city: '',
   country: '',
   date: '',
+  isTicketed: true,
   ticketUrl: '',
+  enableVip: false,
   vipUrl: '',
   isSoldOut: false,
 };
@@ -33,9 +37,11 @@ const toFormState = (tour?: TourDate): TourFormState =>
         city: tour.city,
         country: tour.country,
         date: tour.date ? tour.date.slice(0, 10) : '',
+        isTicketed: tour.isTicketed !== false,
         ticketUrl: tour.ticketUrl ?? '',
+        enableVip: Boolean(tour.vipUrl),
         vipUrl: tour.vipUrl ?? '',
-        isSoldOut: tour.isSoldOut,
+        isSoldOut: Boolean(tour.isSoldOut),
       }
     : emptyState;
 
@@ -58,8 +64,23 @@ const AdminTourPage = () => {
     }
   }, [editingId, data]);
 
+  const buildPayload = () => {
+    const isTicketed = form.isTicketed;
+    return {
+      title: form.title,
+      venue: form.venue,
+      city: form.city,
+      country: form.country,
+      date: form.date,
+      isTicketed,
+      ticketUrl: isTicketed ? form.ticketUrl.trim() : '',
+      vipUrl: isTicketed && form.enableVip ? form.vipUrl.trim() : '',
+      isSoldOut: isTicketed ? form.isSoldOut : false,
+    };
+  };
+
   const createMutation = useMutation({
-    mutationFn: () => AdminAPI.createTour(form),
+    mutationFn: () => AdminAPI.createTour(buildPayload()),
     onSuccess: () => {
       setForm(emptyState);
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
@@ -69,7 +90,8 @@ const AdminTourPage = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: () => (editingId ? AdminAPI.updateTour(editingId, form) : Promise.resolve(null)),
+    mutationFn: () =>
+      editingId ? AdminAPI.updateTour(editingId, buildPayload()) : Promise.resolve(null),
     onSuccess: () => {
       setEditingId(null);
       setForm(emptyState);
@@ -99,12 +121,25 @@ const AdminTourPage = () => {
     }
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = event.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const target = event.target;
+    const { name, value } = target;
+    const nextValue =
+      target instanceof HTMLInputElement && target.type === 'checkbox' ? target.checked : value;
+
+    setForm((prev) => {
+      const next = { ...prev, [name]: nextValue };
+      if (name === 'isTicketed' && nextValue === false) {
+        next.enableVip = false;
+        next.vipUrl = '';
+        next.ticketUrl = '';
+        next.isSoldOut = false;
+      }
+      if (name === 'enableVip' && nextValue === false) {
+        next.vipUrl = '';
+      }
+      return next;
+    });
   };
 
   const resetForm = () => {
@@ -114,6 +149,8 @@ const AdminTourPage = () => {
     updateMutation.reset();
   };
 
+  const mutationError = createMutation.error ?? updateMutation.error;
+
   return (
     <div className="space-y-10">
       <header>
@@ -121,7 +158,9 @@ const AdminTourPage = () => {
         <h1 className="mt-2 font-heading text-3xl font-semibold uppercase tracking-[0.3em] text-white">
           Plan Live Experiences
         </h1>
-        <p className="mt-3 text-sm text-slate-300">Create and manage upcoming tour stops worldwide.</p>
+        <p className="mt-3 text-sm text-slate-300">
+          Create free or ticketed stops. VIP is optional and only appears when you set a VIP link.
+        </p>
       </header>
 
       <form
@@ -189,50 +228,100 @@ const AdminTourPage = () => {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">Tickets URL</label>
-            <input
-              type="url"
-              name="ticketUrl"
-              value={form.ticketUrl}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
-            />
-          </div>
-          <div>
-            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">VIP URL</label>
-            <input
-              type="url"
-              name="vipUrl"
-              value={form.vipUrl}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
-            />
-          </div>
+        <div>
+          <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
+            Event Access *
+          </label>
+          <select
+            name="isTicketed"
+            value={form.isTicketed ? 'ticketed' : 'free'}
+            onChange={(event) =>
+              setForm((prev) => ({
+                ...prev,
+                isTicketed: event.target.value === 'ticketed',
+                ...(event.target.value === 'free'
+                  ? { enableVip: false, vipUrl: '', ticketUrl: '', isSoldOut: false }
+                  : {}),
+              }))
+            }
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30 md:max-w-md"
+          >
+            <option value="ticketed">Ticketed event</option>
+            <option value="free">Free entry</option>
+          </select>
         </div>
 
-        <label className="inline-flex items-center gap-3 text-sm text-slate-300">
-          <input
-            type="checkbox"
-            name="isSoldOut"
-            checked={form.isSoldOut}
-            onChange={handleChange}
-            className="h-4 w-4 rounded border border-white/20 bg-transparent text-accent-400"
-          />
-          Mark as sold out
-        </label>
+        {form.isTicketed && (
+          <div className="space-y-6 rounded-2xl border border-white/10 bg-slate-900/40 p-5">
+            <div>
+              <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
+                Tickets URL *
+              </label>
+              <input
+                type="url"
+                name="ticketUrl"
+                value={form.ticketUrl}
+                onChange={handleChange}
+                required={form.isTicketed}
+                placeholder="https://..."
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
+              />
+            </div>
+
+            <label className="inline-flex items-center gap-3 text-sm text-slate-300">
+              <input
+                type="checkbox"
+                name="enableVip"
+                checked={form.enableVip}
+                onChange={handleChange}
+                className="h-4 w-4 rounded border border-white/20 bg-transparent text-accent-400"
+              />
+              Offer VIP tickets
+            </label>
+
+            {form.enableVip && (
+              <div>
+                <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
+                  VIP URL *
+                </label>
+                <input
+                  type="url"
+                  name="vipUrl"
+                  value={form.vipUrl}
+                  onChange={handleChange}
+                  required={form.enableVip}
+                  placeholder="https://..."
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
+                />
+              </div>
+            )}
+
+            <label className="inline-flex items-center gap-3 text-sm text-slate-300">
+              <input
+                type="checkbox"
+                name="isSoldOut"
+                checked={form.isSoldOut}
+                onChange={handleChange}
+                className="h-4 w-4 rounded border border-white/20 bg-transparent text-accent-400"
+              />
+              Mark as sold out
+            </label>
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-3">
           {(createMutation.isSuccess || updateMutation.isSuccess) && (
             <p className="text-sm font-semibold text-accent-200">Tour date saved.</p>
           )}
-          {(createMutation.isError || updateMutation.isError) &&
-            ((createMutation.error ?? updateMutation.error) instanceof Error) && (
-              <p className="text-sm text-red-300">
-                {(createMutation.error ?? updateMutation.error)?.message || 'Unable to save tour date.'}
-              </p>
-            )}
+          {mutationError && (
+            <p className="text-sm text-red-300">
+              {(mutationError as { response?: { data?: { message?: string } } })?.response?.data
+                ?.message ||
+                (mutationError instanceof Error
+                  ? mutationError.message
+                  : 'Unable to save tour date.')}
+            </p>
+          )}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -277,6 +366,13 @@ const AdminTourPage = () => {
                 <p className="text-sm text-slate-300">
                   {tour.venue} · {tour.city}, {tour.country}
                 </p>
+                <p className="mt-2 text-xs uppercase tracking-[0.25em] text-slate-500">
+                  {tour.isTicketed === false
+                    ? 'Free entry'
+                    : tour.vipUrl
+                      ? 'Ticketed · VIP available'
+                      : 'Ticketed'}
+                </p>
                 {tour.isSoldOut && (
                   <span className="mt-3 inline-flex rounded-full border border-red-300/40 px-3 py-1 text-xs uppercase tracking-[0.3em] text-red-300">
                     Sold Out
@@ -311,4 +407,3 @@ const AdminTourPage = () => {
 };
 
 export default AdminTourPage;
-

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Track } from '../../types/content';
 import { AdminAPI } from '../../lib/api';
+import ImageUploadField from '../../components/ImageUploadField';
 
 interface TrackFormState {
   title: string;
@@ -208,29 +209,21 @@ const AdminMusicPage = () => {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
-              Cover Image URL
-            </label>
-            <input
-              type="url"
-              name="coverImage"
-              value={form.coverImage}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
-            />
-          </div>
-          <div>
-            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">Audio URL</label>
-            <input
-              type="url"
-              name="audioUrl"
-              value={form.audioUrl}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
-            />
-          </div>
+        <ImageUploadField
+          label="Cover Image"
+          value={form.coverImage}
+          onChange={(url) => setForm((prev) => ({ ...prev, coverImage: url }))}
+        />
+
+        <div>
+          <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">Audio URL</label>
+          <input
+            type="url"
+            name="audioUrl"
+            value={form.audioUrl}
+            onChange={handleChange}
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
+          />
         </div>
 
         <div>

@@ -5,8 +5,17 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-  const status = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
+  let status = err.statusCode || 500;
+  let message = err.message || 'Internal Server Error';
+
+  if (err.name === 'MulterError') {
+    status = 400;
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = 'Image must be 5MB or smaller';
+    } else {
+      message = err.message || 'File upload failed';
+    }
+  }
 
   if (process.env.NODE_ENV !== 'production') {
     console.error(err);

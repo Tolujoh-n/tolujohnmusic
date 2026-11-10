@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminAPI } from '../../lib/api';
+import ImageUploadField from '../../components/ImageUploadField';
 
 interface Achievement {
   label: string;
@@ -12,6 +13,8 @@ interface AboutFormState {
   subheading?: string;
   content: string;
   featuredImage?: string;
+  imageOverlayLabel?: string;
+  imageOverlayTitle?: string;
   quoteText?: string;
   quoteAttribution?: string;
   achievements: Achievement[];
@@ -29,6 +32,8 @@ const AdminAboutPage = () => {
     subheading: '',
     content: '',
     featuredImage: '',
+    imageOverlayLabel: '',
+    imageOverlayTitle: '',
     quoteText: '',
     quoteAttribution: '',
     achievements: [{ label: '', value: '' }],
@@ -41,6 +46,8 @@ const AdminAboutPage = () => {
         subheading: data.subheading ?? '',
         content: data.content ?? '',
         featuredImage: data.featuredImage ?? '',
+        imageOverlayLabel: data.imageOverlayLabel ?? '',
+        imageOverlayTitle: data.imageOverlayTitle ?? '',
         quoteText: data.quote?.text ?? '',
         quoteAttribution: data.quote?.attribution ?? '',
         achievements: data.achievements?.length
@@ -57,6 +64,8 @@ const AdminAboutPage = () => {
         subheading: form.subheading,
         content: form.content,
         featuredImage: form.featuredImage,
+        imageOverlayLabel: form.imageOverlayLabel,
+        imageOverlayTitle: form.imageOverlayTitle,
         quote: { text: form.quoteText, attribution: form.quoteAttribution },
         achievements: form.achievements.filter((item) => item.label && item.value),
       }),
@@ -155,19 +164,45 @@ const AdminAboutPage = () => {
           />
         </div>
 
+        <ImageUploadField
+          label="Featured Image"
+          value={form.featuredImage}
+          onChange={(url) => setForm((prev) => ({ ...prev, featuredImage: url }))}
+        />
+
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <label className="block text-xs uppercase tracking-[0.35em] text-slate-400">
-              Featured Image URL
+              Image Overlay Label
             </label>
             <input
-              type="url"
-              name="featuredImage"
-              value={form.featuredImage}
+              type="text"
+              name="imageOverlayLabel"
+              value={form.imageOverlayLabel}
               onChange={handleChange}
+              placeholder="e.g. Live Performance"
               className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
             />
           </div>
+          <div>
+            <label className="block text-xs uppercase tracking-[0.35em] text-slate-400">
+              Image Overlay Title
+            </label>
+            <input
+              type="text"
+              name="imageOverlayTitle"
+              value={form.imageOverlayTitle}
+              onChange={handleChange}
+              placeholder="Optional caption on the image"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
+            />
+          </div>
+        </div>
+        <p className="text-xs text-slate-500">
+          Leave overlay fields blank to hide the caption on the about image.
+        </p>
+
+        <div className="grid gap-6 md:grid-cols-2">
           <div>
             <label className="block text-xs uppercase tracking-[0.35em] text-slate-400">Quote</label>
             <textarea

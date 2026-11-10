@@ -1,11 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { PublicAPI } from '../lib/api';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { getPageCopy } from '../lib/siteContent';
+import PageIntro from '../components/PageIntro';
 
 const TourPage = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['tours'],
     queryFn: () => PublicAPI.getTours(true),
   });
+  const { data: siteSettings } = useSiteSettings();
+  const copy = getPageCopy(siteSettings, 'tour');
 
   if (isLoading) {
     return (
@@ -38,16 +43,7 @@ const TourPage = () => {
   return (
     <div className="bg-slate-950 py-24">
       <div className="mx-auto max-w-6xl px-6">
-        <header className="max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.5em] text-accent-300">Tour</p>
-          <h1 className="mt-4 font-heading text-5xl font-semibold uppercase tracking-widest text-white">
-            Heaven on Earth Tour
-          </h1>
-          <p className="mt-4 text-sm text-slate-300">
-            Experience unforgettable worship nights across continents. Secure your seat and invite your
-            community.
-          </p>
-        </header>
+        <PageIntro copy={copy} />
 
         <section className="mt-16 space-y-6">
           <h2 className="text-sm uppercase tracking-[0.4em] text-accent-200">Upcoming Stops</h2>
@@ -76,30 +72,38 @@ const TourPage = () => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
-                {tour.ticketUrl && (
-                  <a
-                    href={tour.ticketUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full bg-accent-500 px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-slate-950 transition hover:bg-accent-400"
-                  >
-                    Tickets
-                  </a>
-                )}
-                {tour.vipUrl && (
-                  <a
-                    href={tour.vipUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:border-accent-400 hover:text-accent-200"
-                  >
-                    VIP
-                  </a>
-                )}
-                {tour.isSoldOut && (
-                  <span className="rounded-full border border-red-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-red-300">
-                    Sold Out
+                {tour.isTicketed === false ? (
+                  <span className="rounded-full border border-accent-400/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-accent-200">
+                    Free Entry
                   </span>
+                ) : (
+                  <>
+                    {tour.ticketUrl && !tour.isSoldOut && (
+                      <a
+                        href={tour.ticketUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full bg-accent-500 px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-slate-950 transition hover:bg-accent-400"
+                      >
+                        Tickets
+                      </a>
+                    )}
+                    {tour.vipUrl && !tour.isSoldOut && (
+                      <a
+                        href={tour.vipUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:border-accent-400 hover:text-accent-200"
+                      >
+                        VIP
+                      </a>
+                    )}
+                    {tour.isSoldOut && (
+                      <span className="rounded-full border border-red-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-red-300">
+                        Sold Out
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
             </div>

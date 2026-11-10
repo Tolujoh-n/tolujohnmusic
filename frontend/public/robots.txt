@@ -1,3 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Keep admin private from crawlers
+Disallow: /admin/
+Disallow: /admin
+
+Sitemap: https://tolujohn.com/sitemap.xml

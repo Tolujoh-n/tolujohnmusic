@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminAPI } from '../../lib/api';
+import ImageUploadField from '../../components/ImageUploadField';
 
 interface HeroFormState {
   songTitle: string;
@@ -185,18 +186,6 @@ const AdminHeroPage = () => {
           </div>
           <div>
             <label className="block text-xs uppercase tracking-[0.35em] text-slate-400">
-              Background Image URL
-            </label>
-            <input
-              type="url"
-              name="backgroundImage"
-              value={form.backgroundImage}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
-            />
-          </div>
-          <div>
-            <label className="block text-xs uppercase tracking-[0.35em] text-slate-400">
               Release Date
             </label>
             <input
@@ -254,6 +243,12 @@ const AdminHeroPage = () => {
             </div>
           </div>
         </div>
+
+        <ImageUploadField
+          label="Background Image"
+          value={form.backgroundImage}
+          onChange={(url) => setForm((prev) => ({ ...prev, backgroundImage: url }))}
+        />
 
         <div>
           <div className="flex items-center justify-between">

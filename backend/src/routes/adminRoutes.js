@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import protect from '../middleware/authMiddleware.js';
+import upload from '../middleware/uploadMiddleware.js';
+import { uploadImage } from '../controllers/uploadController.js';
 import {
   getDashboardSummary,
   getHeroHighlight,
@@ -26,13 +28,28 @@ import {
   listSubscribers,
   listContactMessages,
   updateContactStatus,
+  listMerchOrders,
+  updateMerchOrderStatus,
+  deleteMerchOrder,
 } from '../controllers/adminController.js';
+import {
+  getAdminSiteSettings,
+  updateAdminSiteSettings,
+} from '../controllers/siteSettingsController.js';
+
+const optionalSocialUrl = (field) =>
+  body(`socialLinks.${field}`)
+    .optional({ values: 'falsy' })
+    .isURL()
+    .withMessage(`${field} must be a valid URL`);
 
 const router = Router();
 
 router.use(protect);
 
 router.get('/dashboard', getDashboardSummary);
+
+router.post('/upload', upload.single('file'), uploadImage);
 
 router
   .route('/hero')
@@ -121,8 +138,15 @@ router
       body('city').notEmpty(),
       body('country').notEmpty(),
       body('date').isISO8601().withMessage('Date is required'),
-      body('ticketUrl').optional().isURL(),
-      body('vipUrl').optional().isURL(),
+      body('isTicketed').optional().isBoolean(),
+      body('ticketUrl')
+        .optional({ values: 'falsy' })
+        .isURL()
+        .withMessage('Ticket URL must be valid'),
+      body('vipUrl')
+        .optional({ values: 'falsy' })
+        .isURL()
+        .withMessage('VIP URL must be valid'),
     ],
     createTour
   );
@@ -136,8 +160,15 @@ router
       body('city').optional().notEmpty(),
       body('country').optional().notEmpty(),
       body('date').optional().isISO8601(),
-      body('ticketUrl').optional().isURL(),
-      body('vipUrl').optional().isURL(),
+      body('isTicketed').optional().isBoolean(),
+      body('ticketUrl')
+        .optional({ values: 'falsy' })
+        .isURL()
+        .withMessage('Ticket URL must be valid'),
+      body('vipUrl')
+        .optional({ values: 'falsy' })
+        .isURL()
+        .withMessage('VIP URL must be valid'),
     ],
     updateTour
   )
@@ -149,8 +180,15 @@ router
   .post(
     [
       body('title').notEmpty(),
-      body('price').isFloat({ min: 0 }),
-      body('productUrl').isURL(),
+      body('price').optional({ values: 'null' }).isFloat({ min: 0 }),
+      body('priceUsd').optional({ values: 'null' }).isFloat({ min: 0 }),
+      body('priceNgn').optional({ values: 'null' }).isFloat({ min: 0 }),
+      body('defaultCurrency').optional().isIn(['USD', 'NGN']),
+      body('ctaType').optional().isIn(['link', 'form']),
+      body('productUrl')
+        .optional({ values: 'falsy' })
+        .isURL()
+        .withMessage('Product URL must be valid'),
     ],
     createMerch
   );
@@ -160,8 +198,15 @@ router
   .put(
     [
       body('title').optional().notEmpty(),
-      body('price').optional().isFloat({ min: 0 }),
-      body('productUrl').optional().isURL(),
+      body('price').optional({ values: 'null' }).isFloat({ min: 0 }),
+      body('priceUsd').optional({ values: 'null' }).isFloat({ min: 0 }),
+      body('priceNgn').optional({ values: 'null' }).isFloat({ min: 0 }),
+      body('defaultCurrency').optional().isIn(['USD', 'NGN']),
+      body('ctaType').optional().isIn(['link', 'form']),
+      body('productUrl')
+        .optional({ values: 'falsy' })
+        .isURL()
+        .withMessage('Product URL must be valid'),
     ],
     updateMerch
   )
@@ -175,5 +220,36 @@ router.put(
   updateContactStatus
 );
 
-export default router;
+router.get('/merch-orders', listMerchOrders);
+router.put(
+  '/merch-orders/:id/status',
+  [body('status').isIn(['new', 'in-progress', 'fulfilled', 'cancelled'])],
+  updateMerchOrderStatus
+);
+router.delete('/merch-orders/:id', deleteMerchOrder);
 
+router
+  .route('/site-settings')
+  .get(getAdminSiteSettings)
+  .put(
+    [
+      optionalSocialUrl('spotify'),
+      optionalSocialUrl('appleMusic'),
+      optionalSocialUrl('instagram'),
+      optionalSocialUrl('youtube'),
+      optionalSocialUrl('facebook'),
+      optionalSocialUrl('x'),
+      body('brandTagline').optional({ values: 'falsy' }).isString(),
+      body('contactInfo.bookingEmail')
+        .optional({ values: 'falsy' })
+        .isEmail()
+        .withMessage('Booking email must be valid'),
+      body('contactInfo.pressEmail')
+        .optional({ values: 'falsy' })
+        .isEmail()
+        .withMessage('Press email must be valid'),
+    ],
+    updateAdminSiteSettings
+  );
+
+export default router;

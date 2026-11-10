@@ -1,26 +1,23 @@
 import type { TourDate } from '../types/content';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { getSectionCopy } from '../lib/siteContent';
+import PageIntro from '../components/PageIntro';
 
 interface TourSectionProps {
   tourDates: TourDate[];
 }
 
 const TourSection = ({ tourDates }: TourSectionProps) => {
+  const { data: siteSettings } = useSiteSettings();
+  const copy = getSectionCopy(siteSettings, 'tour');
+
   return (
     <section id="tour" className="border-t border-white/5 bg-slate-950 py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.5em] text-accent-300">On Tour</p>
-            <h2 className="mt-3 font-heading text-4xl font-semibold uppercase tracking-widest text-white">
-              Upcoming Experiences
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm text-slate-400">
-              Join Tolu John in immersive nights of worship across the globe. Secure your tickets early
-              to experience the Heaven on Earth Tour.
-            </p>
-          </div>
+          <PageIntro copy={copy} as="h2" className="max-w-2xl" />
           <a
-            href="#tickets"
+            href="/tour"
             className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-white transition hover:border-accent-400 hover:text-accent-200"
           >
             View All Dates
@@ -69,30 +66,38 @@ const TourSection = ({ tourDates }: TourSectionProps) => {
               </div>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                {tour.ticketUrl && !tour.isSoldOut && (
-                  <a
-                    href={tour.ticketUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full bg-accent-500 px-5 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-slate-950 transition hover:bg-accent-400"
-                  >
-                    Tickets
-                  </a>
-                )}
-                {tour.vipUrl && (
-                  <a
-                    href={tour.vipUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:border-accent-400 hover:text-accent-200"
-                  >
-                    VIP Experience
-                  </a>
-                )}
-                {tour.isSoldOut && (
-                  <span className="rounded-full border border-red-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-red-300">
-                    Sold Out
+                {tour.isTicketed === false ? (
+                  <span className="rounded-full border border-accent-400/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-accent-200">
+                    Free Entry
                   </span>
+                ) : (
+                  <>
+                    {tour.ticketUrl && !tour.isSoldOut && (
+                      <a
+                        href={tour.ticketUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full bg-accent-500 px-5 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-slate-950 transition hover:bg-accent-400"
+                      >
+                        Tickets
+                      </a>
+                    )}
+                    {tour.vipUrl && !tour.isSoldOut && (
+                      <a
+                        href={tour.vipUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:border-accent-400 hover:text-accent-200"
+                      >
+                        VIP Experience
+                      </a>
+                    )}
+                    {tour.isSoldOut && (
+                      <span className="rounded-full border border-red-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-red-300">
+                        Sold Out
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
             </div>

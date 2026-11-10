@@ -1,11 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { PublicAPI } from '../lib/api';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { getPageCopy } from '../lib/siteContent';
+import PageIntro from '../components/PageIntro';
 
 const VideosPage = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['videos'],
     queryFn: PublicAPI.getVideos,
   });
+  const { data: siteSettings } = useSiteSettings();
+  const copy = getPageCopy(siteSettings, 'videos');
 
   if (isLoading) {
     return (
@@ -23,7 +28,7 @@ const VideosPage = () => {
     return (
       <div className="mx-auto max-w-5xl px-6 py-32 text-center">
         <h1 className="font-heading text-4xl font-semibold uppercase tracking-[0.6em] text-white">
-          Visual Catalogue
+          {copy.title || 'Videos'}
         </h1>
         <p className="mt-6 text-sm text-slate-300">We could not load the videos right now.</p>
       </div>
@@ -33,15 +38,7 @@ const VideosPage = () => {
   return (
     <div className="bg-slate-950 py-24">
       <div className="mx-auto max-w-7xl px-6">
-        <header className="max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.5em] text-accent-300">Videos</p>
-          <h1 className="mt-4 font-heading text-5xl font-semibold uppercase tracking-widest text-white">
-            Visual Storytelling
-          </h1>
-          <p className="mt-4 text-sm text-slate-300">
-            Relive electric live moments and cinematic stories from the Heaven on Earth experience.
-          </p>
-        </header>
+        <PageIntro copy={copy} />
 
         <div className="mt-16 grid gap-8 md:grid-cols-2">
           {data.map((video) => {
@@ -86,4 +83,3 @@ const VideosPage = () => {
 };
 
 export default VideosPage;
-

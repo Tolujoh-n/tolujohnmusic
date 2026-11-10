@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { MerchItem } from '../../types/content';
+import type { CurrencyCode, MerchCtaType, MerchItem } from '../../types/content';
 import { AdminAPI } from '../../lib/api';
+import ImageUploadField from '../../components/ImageUploadField';
+import { formatMoney, resolveMerchPrice } from '../../lib/currency';
 
 interface MerchFormState {
   title: string;
   description?: string;
-  price: number;
+  priceUsd: string;
+  priceNgn: string;
+  defaultCurrency: CurrencyCode;
   imageUrl?: string;
+  ctaType: MerchCtaType;
   productUrl: string;
   inStock?: boolean;
   tags: string;
@@ -16,8 +21,11 @@ interface MerchFormState {
 const emptyState: MerchFormState = {
   title: '',
   description: '',
-  price: 0,
+  priceUsd: '',
+  priceNgn: '',
+  defaultCurrency: 'USD',
   imageUrl: '',
+  ctaType: 'link',
   productUrl: '',
   inStock: true,
   tags: '',
@@ -28,9 +36,22 @@ const toFormState = (item?: MerchItem): MerchFormState =>
     ? {
         title: item.title,
         description: item.description ?? '',
-        price: item.price,
+        priceUsd:
+          item.priceUsd !== undefined
+            ? String(item.priceUsd)
+            : item.defaultCurrency !== 'NGN' && item.price !== undefined
+              ? String(item.price)
+              : '',
+        priceNgn:
+          item.priceNgn !== undefined
+            ? String(item.priceNgn)
+            : item.defaultCurrency === 'NGN' && item.price !== undefined
+              ? String(item.price)
+              : '',
+        defaultCurrency: item.defaultCurrency || 'USD',
         imageUrl: item.imageUrl ?? '',
-        productUrl: item.productUrl,
+        ctaType: item.ctaType || 'link',
+        productUrl: item.productUrl ?? '',
         inStock: item.inStock,
         tags: item.tags?.join(', ') ?? '',
       }
@@ -55,17 +76,21 @@ const AdminMerchPage = () => {
     }
   }, [editingId, data]);
 
+  const buildPayload = () => ({
+    title: form.title,
+    description: form.description,
+    priceUsd: form.priceUsd === '' ? null : Number(form.priceUsd),
+    priceNgn: form.priceNgn === '' ? null : Number(form.priceNgn),
+    defaultCurrency: form.defaultCurrency,
+    imageUrl: form.imageUrl,
+    ctaType: form.ctaType,
+    productUrl: form.ctaType === 'link' ? form.productUrl : form.productUrl || '',
+    inStock: form.inStock,
+    tags: form.tags ? form.tags.split(',').map((tag) => tag.trim()).filter(Boolean) : [],
+  });
+
   const createMutation = useMutation({
-    mutationFn: () =>
-      AdminAPI.createMerch({
-        title: form.title,
-        description: form.description,
-        price: form.price,
-        imageUrl: form.imageUrl,
-        productUrl: form.productUrl,
-        inStock: form.inStock,
-        tags: form.tags ? form.tags.split(',').map((tag) => tag.trim()) : [],
-      }),
+    mutationFn: () => AdminAPI.createMerch(buildPayload()),
     onSuccess: () => {
       setForm(emptyState);
       queryClient.invalidateQueries({ queryKey: ['admin-merch'] });
@@ -76,17 +101,7 @@ const AdminMerchPage = () => {
 
   const updateMutation = useMutation({
     mutationFn: () =>
-      editingId
-        ? AdminAPI.updateMerch(editingId, {
-            title: form.title,
-            description: form.description,
-            price: form.price,
-            imageUrl: form.imageUrl,
-            productUrl: form.productUrl,
-            inStock: form.inStock,
-            tags: form.tags ? form.tags.split(',').map((tag) => tag.trim()) : [],
-          })
-        : Promise.resolve(null),
+      editingId ? AdminAPI.updateMerch(editingId, buildPayload()) : Promise.resolve(null),
     onSuccess: () => {
       setEditingId(null);
       setForm(emptyState);
@@ -116,16 +131,14 @@ const AdminMerchPage = () => {
     }
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const target = event.target;
     const { name, value } = target;
 
     const nextValue =
-      target instanceof HTMLInputElement && target.type === 'checkbox'
-        ? target.checked
-        : name === 'price'
-        ? Number(value)
-        : value;
+      target instanceof HTMLInputElement && target.type === 'checkbox' ? target.checked : value;
 
     setForm((prev) => ({
       ...prev,
@@ -148,7 +161,7 @@ const AdminMerchPage = () => {
           Curate the Storefront
         </h1>
         <p className="mt-3 text-sm text-slate-300">
-          Showcase premium items and limited edition drops from the official store.
+          Set pricing in Naira or Dollar, choose link or shipping-form CTAs, and upload product images.
         </p>
       </header>
 
@@ -169,45 +182,96 @@ const AdminMerchPage = () => {
             />
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">Price (USD) *</label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              name="price"
-              value={form.price}
+            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
+              Default Currency *
+            </label>
+            <select
+              name="defaultCurrency"
+              value={form.defaultCurrency}
               onChange={handleChange}
-              required
               className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
-            />
+            >
+              <option value="USD">Dollar (USD)</option>
+              <option value="NGN">Naira (NGN)</option>
+            </select>
           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
-              Product URL *
+              Price (USD)
             </label>
             <input
-              type="url"
-              name="productUrl"
-              value={form.productUrl}
+              type="number"
+              step="0.01"
+              min="0"
+              name="priceUsd"
+              value={form.priceUsd}
               onChange={handleChange}
-              required
               className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
             />
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">Image URL</label>
+            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
+              Price (NGN)
+            </label>
             <input
-              type="url"
-              name="imageUrl"
-              value={form.imageUrl}
+              type="number"
+              step="1"
+              min="0"
+              name="priceNgn"
+              value={form.priceNgn}
               onChange={handleChange}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
             />
           </div>
         </div>
+        <p className="text-xs text-slate-500">
+          Set one or both prices so visitors can switch between Naira and Dollar on the storefront.
+        </p>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <div>
+            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
+              Get it Now Action *
+            </label>
+            <select
+              name="ctaType"
+              value={form.ctaType}
+              onChange={handleChange}
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
+            >
+              <option value="link">Redirect to link</option>
+              <option value="form">Collect shipping form</option>
+            </select>
+          </div>
+          {form.ctaType === 'link' ? (
+            <div>
+              <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
+                Redirect Link *
+              </label>
+              <input
+                type="url"
+                name="productUrl"
+                value={form.productUrl}
+                onChange={handleChange}
+                required={form.ctaType === 'link'}
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
+              />
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+              Visitors will fill a shipping details modal. Submissions appear under Merch Orders.
+            </div>
+          )}
+        </div>
+
+        <ImageUploadField
+          label="Product Image"
+          value={form.imageUrl}
+          onChange={(url) => setForm((prev) => ({ ...prev, imageUrl: url }))}
+        />
 
         <div>
           <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">Description</label>
@@ -252,7 +316,13 @@ const AdminMerchPage = () => {
           {(createMutation.isError || updateMutation.isError) &&
             ((createMutation.error ?? updateMutation.error) instanceof Error) && (
               <p className="text-sm text-red-300">
-                {(createMutation.error ?? updateMutation.error)?.message || 'Unable to save merch item.'}
+                {(
+                  (createMutation.error ?? updateMutation.error) as {
+                    response?: { data?: { message?: string } };
+                  }
+                )?.response?.data?.message ||
+                  (createMutation.error ?? updateMutation.error)?.message ||
+                  'Unable to save merch item.'}
               </p>
             )}
           <button
@@ -281,42 +351,62 @@ const AdminMerchPage = () => {
           <p className="mt-4 text-sm text-slate-400">No merch items yet. Add the first piece above.</p>
         )}
         <div className="mt-6 space-y-4">
-          {data?.map((item) => (
-            <div
-              key={item._id}
-              className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-elevated md:flex-row md:items-center md:justify-between"
-            >
-              <div>
-                <h3 className="font-heading text-xl font-semibold text-white">{item.title}</h3>
-                <p className="text-sm text-slate-300 line-clamp-2">{item.description}</p>
-                <p className="mt-2 text-lg font-semibold text-accent-200">${item.price.toFixed(2)}</p>
-                {!item.inStock && (
-                  <span className="mt-3 inline-flex rounded-full border border-red-300/40 px-3 py-1 text-xs uppercase tracking-[0.3em] text-red-300">
-                    Sold Out
-                  </span>
-                )}
+          {data?.map((item) => {
+            const usd = resolveMerchPrice(item, 'USD');
+            const ngn = resolveMerchPrice(item, 'NGN');
+            return (
+              <div
+                key={item._id}
+                className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-elevated md:flex-row md:items-center md:justify-between"
+              >
+                <div className="flex gap-4">
+                  {item.imageUrl && (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="hidden h-20 w-20 rounded-2xl object-cover sm:block"
+                    />
+                  )}
+                  <div>
+                    <h3 className="font-heading text-xl font-semibold text-white">{item.title}</h3>
+                    <p className="text-sm text-slate-300 line-clamp-2">{item.description}</p>
+                    <p className="mt-2 text-sm font-semibold text-accent-200">
+                      {usd !== null ? formatMoney(usd, 'USD') : '—'}
+                      {' · '}
+                      {ngn !== null ? formatMoney(ngn, 'NGN') : '—'}
+                    </p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.25em] text-slate-500">
+                      CTA: {item.ctaType === 'form' ? 'Shipping form' : 'External link'}
+                    </p>
+                    {!item.inStock && (
+                      <span className="mt-3 inline-flex rounded-full border border-red-300/40 px-3 py-1 text-xs uppercase tracking-[0.3em] text-red-300">
+                        Sold Out
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingId(item._id);
+                      setForm(toFormState(item));
+                    }}
+                    className="rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:border-accent-400 hover:text-accent-200"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteMutation.mutate(item._id)}
+                    className="rounded-full border border-red-500/40 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-red-300"
+                  >
+                    {deleteMutation.isPending ? 'Removing…' : 'Delete'}
+                  </button>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingId(item._id);
-                    setForm(toFormState(item));
-                  }}
-                  className="rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:border-accent-400 hover:text-accent-200"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => deleteMutation.mutate(item._id)}
-                  className="rounded-full border border-red-500/40 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-red-300"
-                >
-                  {deleteMutation.isPending ? 'Removing…' : 'Delete'}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>
@@ -324,4 +414,3 @@ const AdminMerchPage = () => {
 };
 
 export default AdminMerchPage;
-

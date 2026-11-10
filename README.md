@@ -12,7 +12,10 @@ A full-stack, production-ready web experience for Nigerian gospel artist **Tolu 
 
 - **Immersive landing page** with hero highlight, about story, live tour section, latest video embed, music spotlight, merch teaser, subscription CTA, and footer with socials.
 - **Dedicated pages** for About, Music catalogue, Videos, Tour dates, Merch store, Subscribe flow, and Contact form.
-- **Admin Dashboard** featuring authentication, personalized profile, KPIs, and CRUD management for hero content, biography, tracks, videos, tour dates, merch, subscribers, and messages.
+- **Admin Dashboard** featuring authentication, personalized profile, KPIs, and CRUD management for hero content, biography, tracks, videos, tour dates, merch, merch shipping requests, subscribers, and messages.
+- **Cloudinary image uploads** in admin (upload from computer or paste a URL) with live preview for hero, about, music, videos, and merch.
+- **Editable site content** for page/section intros, header tagline, contact details, navbar/favicon logo, and SEO meta (title, description, keywords, share image).
+- **Merch Get it Now** flow with admin-controlled link redirect or shipping-details form, USD/NGN currency switching, and an admin inbox for form submissions (no payment required).
 - **API-first architecture** exposing public endpoints for the frontend and protected admin endpoints behind JWT.
 - **Seed script** with carefully curated dummy data to showcase the experience instantly.
 
@@ -67,6 +70,10 @@ By default, the frontend proxies API requests to `http://localhost:5000/api`.
 | `JWT_SECRET`    | Secret used to sign admin JWT tokens       |
 | `JWT_EXPIRES_IN`| Token lifespan (e.g., `7d`)                |
 | `ALLOWED_ORIGINS` | Whitelisted origins for CORS (comma list) |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name (admin image uploads) |
+| `CLOUDINARY_API_KEY` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `CLOUDINARY_FOLDER` | Optional upload folder (default `tolujohn`) |
 
 ### Frontend `.env`
 
@@ -98,6 +105,8 @@ The `npm run seed` script creates a complete data set for immediate testing:
 | `GET /api/public/videos`| Lists all published videos ordered by release date. |
 | `GET /api/public/tour-dates` | Lists upcoming tour dates (use `?includePast=true` to include previous shows). |
 | `GET /api/public/merch` | Lists merch items currently in the catalogue. |
+| `GET /api/public/site-settings` | Returns public site settings including social media links. |
+| `POST /api/public/merch-orders` | Submits shipping details for form-based merch CTAs. |
 | `POST /api/public/subscribe` | Adds an email to the subscriber list. Body: `{ email }`. |
 | `POST /api/public/contact` | Records a booking/contact inquiry. Body: `{ name, email, message }`. |
 
@@ -128,10 +137,15 @@ The `npm run seed` script creates a complete data set for immediate testing:
 | `POST /api/admin/tours` | Create a tour date. |
 | `PUT /api/admin/tours/:id` | Update a tour date. |
 | `DELETE /api/admin/tours/:id` | Delete a tour date. |
+| `POST /api/admin/upload` | Upload an image to Cloudinary (`multipart/form-data`, field `file`). Returns `{ url, publicId }`. |
+| `GET /api/admin/site-settings` / `PUT /api/admin/site-settings` | Retrieve or update social links, brand tagline, page/section copy, and contact details. |
 | `GET /api/admin/merch` | List merch items. |
-| `POST /api/admin/merch` | Create a merch item. |
+| `POST /api/admin/merch` | Create a merch item (supports `priceUsd`, `priceNgn`, `defaultCurrency`, `ctaType`, `productUrl`). |
 | `PUT /api/admin/merch/:id` | Update a merch item. |
 | `DELETE /api/admin/merch/:id` | Delete a merch item. |
+| `GET /api/admin/merch-orders` | List merch shipping form submissions. |
+| `PUT /api/admin/merch-orders/:id/status` | Update order status (`new`, `in-progress`, `fulfilled`, `cancelled`). |
+| `DELETE /api/admin/merch-orders/:id` | Delete a merch order. |
 | `GET /api/admin/subscribers` | List newsletter subscribers. |
 | `GET /api/admin/messages` | List contact form submissions. |
 | `PUT /api/admin/messages/:id/status` | Update a message status (`new`, `in-progress`, `resolved`). |
@@ -168,7 +182,6 @@ frontend/
 
 - Configure production deployments (Vercel/Netlify for frontend, Render/Fly/Heroku for backend).
 - Plug in real MongoDB Atlas connection and update environment secrets.
-- Integrate media uploads (e.g., Cloudinary) for cover art and hero backgrounds.
 - Add analytics or CRM integrations for subscriber exports.
 - Extend admin with role-based permissions if multiple managers are expected.
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Video } from '../../types/content';
 import { AdminAPI } from '../../lib/api';
+import ImageUploadField from '../../components/ImageUploadField';
 
 interface VideoFormState {
   title: string;
@@ -179,30 +180,22 @@ const AdminVideosPage = () => {
           />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <label className="block text-xs uppercase tracking-[0.3em] text-slate-400">
-              Thumbnail URL
-            </label>
-            <input
-              type="url"
-              name="thumbnailUrl"
-              value={form.thumbnailUrl}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400/30"
-            />
-          </div>
-          <label className="mt-7 inline-flex items-center gap-3 text-sm text-slate-300">
-            <input
-              type="checkbox"
-              name="isFeatured"
-              checked={form.isFeatured}
-              onChange={handleChange}
-              className="h-4 w-4 rounded border border-white/20 bg-transparent text-accent-400"
-            />
-            Feature on home page
-          </label>
-        </div>
+        <ImageUploadField
+          label="Thumbnail Image"
+          value={form.thumbnailUrl}
+          onChange={(url) => setForm((prev) => ({ ...prev, thumbnailUrl: url }))}
+        />
+
+        <label className="inline-flex items-center gap-3 text-sm text-slate-300">
+          <input
+            type="checkbox"
+            name="isFeatured"
+            checked={form.isFeatured}
+            onChange={handleChange}
+            className="h-4 w-4 rounded border border-white/20 bg-transparent text-accent-400"
+          />
+          Feature on home page
+        </label>
 
         <div className="flex flex-wrap items-center gap-3">
           {(createMutation.isSuccess || updateMutation.isSuccess) && (

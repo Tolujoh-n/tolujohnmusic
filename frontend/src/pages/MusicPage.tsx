@@ -1,12 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { PublicAPI } from '../lib/api';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { getPageCopy } from '../lib/siteContent';
+import PageIntro from '../components/PageIntro';
 
 const MusicPage = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['music'],
     queryFn: PublicAPI.getMusic,
   });
+  const { data: siteSettings } = useSiteSettings();
+  const copy = getPageCopy(siteSettings, 'music');
 
   if (isLoading) {
     return (
@@ -34,16 +39,7 @@ const MusicPage = () => {
   return (
     <div className="bg-slate-950 py-24">
       <div className="mx-auto max-w-7xl px-6">
-        <header className="max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.5em] text-accent-300">Music</p>
-          <h1 className="mt-4 font-heading text-5xl font-semibold uppercase tracking-widest text-white">
-            Discography
-          </h1>
-          <p className="mt-4 text-sm text-slate-300">
-            A curated body of work that captures a journey of faith, resilience, and vibrant African
-            expressions of worship.
-          </p>
-        </header>
+        <PageIntro copy={copy} />
 
         <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {data.map((track) => (
@@ -72,9 +68,9 @@ const MusicPage = () => {
               </div>
 
               <div className="flex flex-1 flex-col gap-4 p-6">
-                <p className="text-sm text-slate-300 line-clamp-3">
-                  {track.description || 'Experience the essence of this record today.'}
-                </p>
+                {track.description && (
+                  <p className="text-sm text-slate-300 line-clamp-3">{track.description}</p>
+                )}
                 {track.genres && (
                   <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
                     {track.genres.map((genre) => (

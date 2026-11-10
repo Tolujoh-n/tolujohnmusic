@@ -2,9 +2,16 @@ import { FormEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { PublicAPI } from '../lib/api';
+import SocialLinks from '../components/SocialLinks';
+import PageIntro from '../components/PageIntro';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { getContactInfo, getPageCopy } from '../lib/siteContent';
 
 const ContactPage = () => {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const { data: siteSettings } = useSiteSettings();
+  const copy = getPageCopy(siteSettings, 'contact');
+  const contact = getContactInfo(siteSettings);
   const { mutateAsync, isPending, isSuccess, data, isError, error, reset } = useMutation({
     mutationFn: PublicAPI.contact,
   });
@@ -30,38 +37,53 @@ const ContactPage = () => {
     <div className="bg-slate-950 py-24">
       <div className="mx-auto grid max-w-6xl gap-16 px-6 lg:grid-cols-2">
         <div>
-          <p className="text-sm uppercase tracking-[0.5em] text-accent-300">Contact</p>
-          <h1 className="mt-4 font-heading text-5xl font-semibold uppercase tracking-widest text-white">
-            Let’s Create Moments
-          </h1>
-          <p className="mt-4 text-sm text-slate-300">
-            For bookings, collaborations, media inquiries, or partnership opportunities, send us a message
-            and the team will respond promptly.
-          </p>
+          <PageIntro copy={copy} />
           <div className="mt-10 space-y-6 text-sm text-slate-300">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Bookings & Management</p>
-              <a
-                href="mailto:booking@tolujohnmusic.com"
-                className="mt-2 inline-block text-base text-white hover:text-accent-200"
-              >
-                booking@tolujohnmusic.com
-              </a>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Press & Media</p>
-              <a
-                href="mailto:press@tolujohnmusic.com"
-                className="mt-2 inline-block text-base text-white hover:text-accent-200"
-              >
-                press@tolujohnmusic.com
-              </a>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Representation</p>
-              <p className="mt-2 text-base text-white">SoulBridge Creative Agency</p>
-              <p className="text-sm text-slate-400">Lagos · London · Atlanta</p>
-            </div>
+            {contact.bookingEmail && (
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+                  {contact.bookingLabel || 'Bookings & Management'}
+                </p>
+                <a
+                  href={`mailto:${contact.bookingEmail}`}
+                  className="mt-2 inline-block text-base text-white hover:text-accent-200"
+                >
+                  {contact.bookingEmail}
+                </a>
+              </div>
+            )}
+            {contact.pressEmail && (
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+                  {contact.pressLabel || 'Press & Media'}
+                </p>
+                <a
+                  href={`mailto:${contact.pressEmail}`}
+                  className="mt-2 inline-block text-base text-white hover:text-accent-200"
+                >
+                  {contact.pressEmail}
+                </a>
+              </div>
+            )}
+            {(contact.representationName || contact.representationLocations) && (
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+                  {contact.representationLabel || 'Representation'}
+                </p>
+                {contact.representationName && (
+                  <p className="mt-2 text-base text-white">{contact.representationName}</p>
+                )}
+                {contact.representationLocations && (
+                  <p className="text-sm text-slate-400">{contact.representationLocations}</p>
+                )}
+              </div>
+            )}
+            <SocialLinks
+              links={siteSettings?.socialLinks}
+              showHeading
+              label="Social"
+              className="mt-4 flex flex-wrap gap-4 text-xl text-slate-400"
+            />
           </div>
         </div>
 
@@ -143,4 +165,3 @@ const ContactPage = () => {
 };
 
 export default ContactPage;
-

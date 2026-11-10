@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { HiOutlineMenuAlt3, HiOutlineX } from 'react-icons/hi';
-import logo from "../assets/main-logo.png";
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { defaultBrandLogo, defaultBrandName, defaultBrandTagline } from '../lib/siteContent';
 
 const navItems = [
   { label: 'About', to: '/about' },
@@ -15,19 +16,27 @@ const navItems = [
 
 const SiteHeader = () => {
   const [open, setOpen] = useState(false);
+  const { data: siteSettings } = useSiteSettings();
+  const brandName = siteSettings?.brandName || defaultBrandName;
+  const brandTagline = siteSettings?.brandTagline || defaultBrandTagline;
+  const brandLogo = siteSettings?.brandLogo || defaultBrandLogo;
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 bg-gradient-to-b from-slate-950/90 via-slate-950/30 to-transparent backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 transition-all">
         <NavLink to="/" className="group flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center">
-            <img src={logo} alt="Logo" className="h-8 w-8" />
+          <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full">
+            <img
+              src={brandLogo}
+              alt={`${brandName} logo`}
+              className="h-8 w-8 object-contain"
+            />
           </span>
           <div className="leading-tight">
             <p className="font-heading text-lg font-semibold uppercase tracking-widest text-white drop-shadow-lg">
-              Tolu John
+              {brandName}
             </p>
-            <p className="text-xs uppercase tracking-[0.4em] text-white/60">Music Artist</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-white/60">{brandTagline}</p>
           </div>
         </NavLink>
 
@@ -78,19 +87,14 @@ const SiteHeader = () => {
                   [
                     'rounded-full px-4 py-2 text-center',
                     isActive ? 'bg-white/10 text-white' : 'hover:bg-white/5 hover:text-white',
-                  ].join(' ')
+                  ]
+                    .filter(Boolean)
+                    .join(' ')
                 }
               >
                 {item.label}
               </NavLink>
             ))}
-            <NavLink
-              to="/tour"
-              onClick={() => setOpen(false)}
-              className="rounded-full border border-white/20 px-4 py-2 text-center font-semibold text-white"
-            >
-              Tour Dates
-            </NavLink>
           </nav>
         </div>
       )}
@@ -99,4 +103,3 @@ const SiteHeader = () => {
 };
 
 export default SiteHeader;
-

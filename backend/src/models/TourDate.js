@@ -26,11 +26,19 @@ const tourDateSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    isTicketed: {
+      type: Boolean,
+      default: true,
+    },
     ticketUrl: {
       type: String,
+      trim: true,
+      default: '',
     },
     vipUrl: {
       type: String,
+      trim: true,
+      default: '',
     },
     isSoldOut: {
       type: Boolean,
@@ -45,4 +53,3 @@ tourDateSchema.index({ date: 1 });
 const TourDate = mongoose.model('TourDate', tourDateSchema);
 
 export default TourDate;
-

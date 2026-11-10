@@ -26,6 +26,8 @@ export interface AboutContent {
   content: string;
   achievements?: { label: string; value: string }[];
   featuredImage?: string;
+  imageOverlayLabel?: string;
+  imageOverlayTitle?: string;
   quote?: {
     text?: string;
     attribution?: string;
@@ -40,6 +42,7 @@ export interface TourDate {
   city: string;
   country: string;
   date: string;
+  isTicketed?: boolean;
   ticketUrl?: string;
   vipUrl?: string;
   isSoldOut: boolean;
@@ -67,15 +70,44 @@ export interface Track {
   genres?: string[];
 }
 
+export type CurrencyCode = 'USD' | 'NGN';
+export type MerchCtaType = 'link' | 'form';
+export type MerchOrderStatus = 'new' | 'in-progress' | 'fulfilled' | 'cancelled';
+
 export interface MerchItem {
   _id: string;
   title: string;
   description?: string;
   price: number;
+  priceUsd?: number;
+  priceNgn?: number;
+  defaultCurrency?: CurrencyCode;
   imageUrl?: string;
-  productUrl: string;
+  ctaType?: MerchCtaType;
+  productUrl?: string;
   inStock: boolean;
   tags?: string[];
+}
+
+export interface MerchOrder {
+  _id: string;
+  merchItem?: string | { _id: string; title?: string; imageUrl?: string };
+  itemTitle: string;
+  itemPrice?: number;
+  currency: CurrencyCode;
+  quantity: number;
+  name: string;
+  email: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode?: string;
+  notes?: string;
+  status: MerchOrderStatus;
+  createdAt: string;
 }
 
 export interface Subscriber {
@@ -94,6 +126,51 @@ export interface ContactMessage {
   createdAt: string;
 }
 
+export type SocialPlatform =
+  | 'spotify'
+  | 'appleMusic'
+  | 'instagram'
+  | 'youtube'
+  | 'facebook'
+  | 'x';
+
+export type SocialLinks = Record<SocialPlatform, string>;
+
+export interface CopyBlock {
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
+export type PageContentKey = 'music' | 'videos' | 'tour' | 'merch' | 'subscribe' | 'contact';
+export type SectionContentKey = 'music' | 'tour' | 'merch' | 'subscribe';
+
+export interface ContactInfo {
+  bookingLabel: string;
+  bookingEmail: string;
+  pressLabel: string;
+  pressEmail: string;
+  representationLabel: string;
+  representationName: string;
+  representationLocations: string;
+}
+
+export interface SiteSettings {
+  brandName: string;
+  brandTagline: string;
+  brandLogo: string;
+  siteTitle: string;
+  siteDescription: string;
+  siteKeywords: string;
+  ogImage: string;
+  siteUrl: string;
+  socialLinks: SocialLinks;
+  pageContent: Record<PageContentKey, CopyBlock>;
+  sectionContent: Record<SectionContentKey, CopyBlock>;
+  contactInfo: ContactInfo;
+  updatedAt?: string;
+}
+
 export interface HomePayload {
   hero?: HeroHighlight;
   about?: AboutContent;
@@ -101,6 +178,8 @@ export interface HomePayload {
   latestVideo?: Video;
   music: Track[];
   merch: MerchItem[];
+  socialLinks?: SocialLinks;
+  siteSettings?: SiteSettings;
 }
 
 export interface ApiResponse<T> {

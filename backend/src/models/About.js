@@ -25,6 +25,16 @@ const aboutSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    imageOverlayLabel: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    imageOverlayTitle: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     quote: {
       text: { type: String },
       attribution: { type: String },

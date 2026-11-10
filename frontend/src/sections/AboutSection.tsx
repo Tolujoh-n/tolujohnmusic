@@ -60,10 +60,20 @@ const AboutSection = ({ about }: AboutSectionProps) => {
               className="h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-            <div className="absolute bottom-0 p-6">
-              <p className="text-xs uppercase tracking-[0.4em] text-slate-300">Live Performance</p>
-              <p className="font-heading text-2xl font-semibold text-white">Moments of Encounter</p>
-            </div>
+            {(about.imageOverlayLabel || about.imageOverlayTitle) && (
+              <div className="absolute bottom-0 p-6">
+                {about.imageOverlayLabel && (
+                  <p className="text-xs uppercase tracking-[0.4em] text-slate-300">
+                    {about.imageOverlayLabel}
+                  </p>
+                )}
+                {about.imageOverlayTitle && (
+                  <p className="font-heading text-2xl font-semibold text-white">
+                    {about.imageOverlayTitle}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

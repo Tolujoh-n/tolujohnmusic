@@ -1,9 +1,18 @@
 import { FormEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { PublicAPI } from '../lib/api';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { getSectionCopy } from '../lib/siteContent';
+import PageIntro from '../components/PageIntro';
 
-const SubscribeSection = () => {
+interface SubscribeSectionProps {
+  hideIntro?: boolean;
+}
+
+const SubscribeSection = ({ hideIntro = false }: SubscribeSectionProps) => {
   const [email, setEmail] = useState('');
+  const { data: siteSettings } = useSiteSettings();
+  const copy = getSectionCopy(siteSettings, 'subscribe');
   const { mutateAsync, isPending, isSuccess, data, isError, error, reset } = useMutation({
     mutationFn: PublicAPI.subscribe,
   });
@@ -18,17 +27,14 @@ const SubscribeSection = () => {
   return (
     <section id="subscribe" className="border-y border-white/5 bg-slate-950 py-24">
       <div className="mx-auto max-w-5xl px-6 text-center">
-        <p className="text-sm uppercase tracking-[0.5em] text-accent-300">Stay Connected</p>
-        <h2 className="mt-4 font-heading text-4xl font-semibold uppercase tracking-widest text-white">
-          Join the Inner Circle
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-sm text-slate-300">
-          Receive exclusive stories, tour announcements, and early access to new music from Tolu John.
-        </p>
+        {!hideIntro && <PageIntro copy={copy} align="center" as="h2" className="max-w-3xl" />}
 
         <form
           onSubmit={handleSubmit}
-          className="mx-auto mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+          className={[
+            'mx-auto flex flex-col items-center gap-4 sm:flex-row sm:justify-center',
+            hideIntro ? 'mt-0' : 'mt-10',
+          ].join(' ')}
         >
           <input
             type="email"
@@ -67,4 +73,3 @@ const SubscribeSection = () => {
 };
 
 export default SubscribeSection;
-

@@ -6,6 +6,7 @@ import {
   HiOutlineCalendar,
   HiOutlineUserGroup,
   HiOutlineMail,
+  HiOutlineCollection,
 } from 'react-icons/hi';
 
 const metricIcons = {
@@ -14,6 +15,7 @@ const metricIcons = {
   upcomingTours: HiOutlineCalendar,
   subscribers: HiOutlineUserGroup,
   newMessages: HiOutlineMail,
+  newMerchOrders: HiOutlineCollection,
 };
 
 const metricLabels: Record<string, string> = {
@@ -22,6 +24,7 @@ const metricLabels: Record<string, string> = {
   upcomingTours: 'Upcoming Tours',
   subscribers: 'Subscribers',
   newMessages: 'New Messages',
+  newMerchOrders: 'New Merch Orders',
 };
 
 const AdminDashboardPage = () => {

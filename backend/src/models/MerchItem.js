@@ -10,17 +10,35 @@ const merchItemSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    // Legacy single price — kept for backward compatibility with existing records
     price: {
       type: Number,
-      required: true,
       min: 0,
+      default: 0,
+    },
+    priceUsd: {
+      type: Number,
+      min: 0,
+    },
+    priceNgn: {
+      type: Number,
+      min: 0,
+    },
+    defaultCurrency: {
+      type: String,
+      enum: ['USD', 'NGN'],
+      default: 'USD',
     },
     imageUrl: {
       type: String,
     },
+    ctaType: {
+      type: String,
+      enum: ['link', 'form'],
+      default: 'link',
+    },
     productUrl: {
       type: String,
-      required: true,
     },
     inStock: {
       type: Boolean,
@@ -39,4 +57,3 @@ const merchItemSchema = new mongoose.Schema(
 const MerchItem = mongoose.model('MerchItem', merchItemSchema);
 
 export default MerchItem;
-

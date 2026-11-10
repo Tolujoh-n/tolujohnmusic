@@ -26,7 +26,7 @@ const HeroSection = ({ hero }: HeroSectionProps) => {
     { label: 'Available On', value: platformSummary },
     {
       label: 'Experience',
-      value: hero?.ctaLabel ? hero.ctaLabel : 'Immersive Worship',
+      value: hero?.ctaLabel ? hero.ctaLabel : 'Listen Now',
     },
   ];
 
@@ -53,12 +53,11 @@ const HeroSection = ({ hero }: HeroSectionProps) => {
               <span className="h-1.5 w-1.5 rounded-full bg-accent-300 shadow-[0_0_0_4px_rgba(255,146,26,0.25)]" />
             </div>
             <h1 className="mt-6 font-heading text-5xl font-semibold uppercase leading-tight tracking-[0.45em] text-white drop-shadow-2xl md:text-6xl">
-            {hero?.songTitle || 'Sound of Heaven'}
-          </h1>
+              {hero?.songTitle || 'Tolu John'}
+            </h1>
             <p className="mt-6 text-lg text-white/80 md:text-xl">
-            {hero?.tagline ||
-              'Immerse yourself in a transcendent sonic journey crafted to ignite faith and hope.'}
-          </p>
+              {hero?.tagline || 'Worship. Sound. Atmosphere.'}
+            </p>
             {hero?.description && (
               <p className="mt-4 text-base text-white/70 md:text-lg">{hero.description}</p>
             )}
@@ -115,8 +114,8 @@ const HeroSection = ({ hero }: HeroSectionProps) => {
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <p className="text-xs uppercase tracking-[0.5em] text-white/60">Featured Single</p>
                 <h2 className="mt-2 font-heading text-2xl font-semibold text-white drop-shadow-lg">
-                {hero?.songTitle || 'Sound of Heaven'}
-              </h2>
+                  {hero?.songTitle || 'Tolu John'}
+                </h2>
                 {hero?.releaseDate && (
                   <p className="text-sm text-white/70">Released {releaseDate}</p>
                 )}

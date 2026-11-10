@@ -1,10 +1,12 @@
 import { Outlet } from 'react-router-dom';
 import SiteHeader from '../components/SiteHeader';
 import SiteFooter from '../components/SiteFooter';
+import SeoHead from '../components/SeoHead';
 
 const SiteLayout = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
+      <SeoHead />
       <SiteHeader />
       <main className="pt-24">
         <Outlet />
@@ -15,4 +17,3 @@ const SiteLayout = () => {
 };
 
 export default SiteLayout;
-

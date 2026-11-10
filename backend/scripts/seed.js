@@ -8,8 +8,10 @@ import Track from '../src/models/Track.js';
 import Video from '../src/models/Video.js';
 import TourDate from '../src/models/TourDate.js';
 import MerchItem from '../src/models/MerchItem.js';
+import MerchOrder from '../src/models/MerchOrder.js';
 import Subscriber from '../src/models/Subscriber.js';
 import ContactMessage from '../src/models/ContactMessage.js';
+import SiteSettings from '../src/models/SiteSettings.js';
 
 dotenv.config();
 
@@ -24,8 +26,10 @@ const seedData = async () => {
     Video.deleteMany(),
     TourDate.deleteMany(),
     MerchItem.deleteMany(),
+    MerchOrder.deleteMany(),
     Subscriber.deleteMany(),
     ContactMessage.deleteMany(),
+    SiteSettings.deleteMany(),
   ]);
 
   const admin = await Admin.create({
@@ -134,29 +138,34 @@ const seedData = async () => {
 
   const tours = await TourDate.create([
     {
-      title: 'Heaven on Earth Tour - London',
+      title: 'Worship Night - London',
       venue: 'The Royal Albert Hall',
       city: 'London',
       country: 'United Kingdom',
       date: new Date('2025-02-18'),
+      isTicketed: true,
       ticketUrl: 'https://tickets.example.com/london',
       vipUrl: 'https://tickets.example.com/london/vip',
     },
     {
-      title: 'Heaven on Earth Tour - Atlanta',
+      title: 'Worship Night - Atlanta',
       venue: 'Fox Theatre',
       city: 'Atlanta',
       country: 'USA',
       date: new Date('2025-03-05'),
+      isTicketed: true,
       ticketUrl: 'https://tickets.example.com/atlanta',
+      vipUrl: '',
     },
     {
-      title: 'Grace & Glory - Johannesburg',
-      venue: 'Ticketpro Dome',
-      city: 'Johannesburg',
-      country: 'South Africa',
+      title: 'Community Gathering - Lagos',
+      venue: 'City Arena',
+      city: 'Lagos',
+      country: 'Nigeria',
       date: new Date('2025-04-12'),
-      ticketUrl: 'https://tickets.example.com/johannesburg',
+      isTicketed: false,
+      ticketUrl: '',
+      vipUrl: '',
       isSoldOut: false,
     },
   ]);
@@ -166,6 +175,10 @@ const seedData = async () => {
       title: 'Heaven on Earth Hoodie',
       description: 'Premium heavyweight hoodie featuring the tour artwork.',
       price: 65,
+      priceUsd: 65,
+      priceNgn: 95000,
+      defaultCurrency: 'USD',
+      ctaType: 'link',
       imageUrl:
         'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80',
       productUrl: 'https://shop.tolujohnmusic.com/products/hoodie',
@@ -174,10 +187,14 @@ const seedData = async () => {
     {
       title: 'Signed Vinyl - Rhythms of Grace',
       description: 'Limited edition signed vinyl with lyric booklet.',
-      price: 45,
+      price: 45000,
+      priceUsd: 45,
+      priceNgn: 45000,
+      defaultCurrency: 'NGN',
+      ctaType: 'form',
       imageUrl:
         'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
-      productUrl: 'https://shop.tolujohnmusic.com/products/vinyl',
+      productUrl: '',
       tags: ['music', 'collectible'],
     },
   ]);
@@ -195,10 +212,40 @@ const seedData = async () => {
     },
   ]);
 
+  await SiteSettings.create({
+    brandName: 'Tolu John',
+    brandTagline: 'Music Artist',
+    brandLogo: '',
+    siteTitle: 'Tolu John | Official Music Platform',
+    siteDescription:
+      'Official website of Tolu John — stream music, watch videos, get tour dates, shop merch, and join the inner circle.',
+    siteKeywords:
+      'Tolu John, gospel artist, worship music, Nigerian gospel, tour dates, Christian music, merch',
+    ogImage: '',
+    siteUrl: 'https://tolujohn.com',
+    socialLinks: {
+      spotify: 'https://open.spotify.com/artist/example',
+      appleMusic: 'https://music.apple.com/artist/example',
+      instagram: 'https://instagram.com/tolujohn',
+      youtube: 'https://youtube.com/@tolujohn',
+      facebook: '',
+      x: '',
+    },
+    contactInfo: {
+      bookingLabel: 'Bookings & Management',
+      bookingEmail: '',
+      pressLabel: 'Press & Media',
+      pressEmail: '',
+      representationLabel: 'Representation',
+      representationName: '',
+      representationLocations: '',
+    },
+  });
+
   console.log(colors.green('Seed data imported successfully.'));
   console.log(
     colors.cyan(
-      `Created: admin(${admin.email}), hero(${hero.songTitle}), tracks(${tracks.length}), videos(${videos.length}), tours(${tours.length}), merch(${merch.length}), subscribers(${subscribers.length}), messages(${messages.length})`
+      `Created: admin(${admin.email}), hero(${hero.songTitle}), tracks(${tracks.length}), videos(${videos.length}), tours(${tours.length}), merch(${merch.length}), subscribers(${subscribers.length}), messages(${messages.length}), siteSettings`
     )
   );
 
@@ -215,8 +262,10 @@ const destroyData = async () => {
     Video.deleteMany(),
     TourDate.deleteMany(),
     MerchItem.deleteMany(),
+    MerchOrder.deleteMany(),
     Subscriber.deleteMany(),
     ContactMessage.deleteMany(),
+    SiteSettings.deleteMany(),
   ]);
   console.log(colors.yellow('All data destroyed.'));
   process.exit();

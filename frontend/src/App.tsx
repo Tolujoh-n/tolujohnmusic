@@ -19,8 +19,10 @@ import AdminMusicPage from './pages/admin/AdminMusicPage';
 import AdminVideosPage from './pages/admin/AdminVideosPage';
 import AdminTourPage from './pages/admin/AdminTourPage';
 import AdminMerchPage from './pages/admin/AdminMerchPage';
+import AdminMerchOrdersPage from './pages/admin/AdminMerchOrdersPage';
 import AdminSubscribersPage from './pages/admin/AdminSubscribersPage';
 import AdminMessagesPage from './pages/admin/AdminMessagesPage';
+import AdminSiteContentPage from './pages/admin/AdminSiteContentPage';
 import AdminProfilePage from './pages/admin/AdminProfilePage';
 
 const App = () => {
@@ -49,8 +51,10 @@ const App = () => {
           <Route path="videos" element={<AdminVideosPage />} />
           <Route path="tour" element={<AdminTourPage />} />
           <Route path="merch" element={<AdminMerchPage />} />
+          <Route path="merch-orders" element={<AdminMerchOrdersPage />} />
           <Route path="subscribers" element={<AdminSubscribersPage />} />
           <Route path="messages" element={<AdminMessagesPage />} />
+          <Route path="site-content" element={<AdminSiteContentPage />} />
           <Route path="profile" element={<AdminProfilePage />} />
         </Route>
       </Route>
